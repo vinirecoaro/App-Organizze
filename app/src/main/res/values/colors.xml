@@ -18,5 +18,8 @@
     <color name="colorPrimaryDarkReceita">#00be8b</color>
     <color name="colorAccentReceita">#00d39e</color>
 
+    <!-- Cores receitas! -->
+    <color name="colorPrimary">#01C7D2</color>
+    <color name="colorPrimaryDark">#00B2BC</color>
 
 </resources>
