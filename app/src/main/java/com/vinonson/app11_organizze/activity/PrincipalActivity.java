@@ -38,8 +38,10 @@ public class PrincipalActivity extends AppCompatActivity {
     private Double receitaTotal = 0.00;
     private Double resumoUsuario = 0.00;
 
-    private FirebaseAuth autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao();;
+    private FirebaseAuth autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao();
     private DatabaseReference firebaseRef = ConfiguracaoFirebase.getFirebaseDatabase();
+    private DatabaseReference usuarioRef;
+    private ValueEventListener valueEventListenerUsuario;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +57,6 @@ public class PrincipalActivity extends AppCompatActivity {
         textoSaudacao = findViewById(R.id.textSaudacao);
 
         configuraCalendarView();
-        recuperarResumo();
 
         /*binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,12 +67,19 @@ public class PrincipalActivity extends AppCompatActivity {
         });*/
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        recuperarResumo();
+    }
+
     public void recuperarResumo(){
         String emailUsuario = autenticacao.getCurrentUser().getEmail();
         String idUsuario = Base64Custom.codificarBase64(emailUsuario);
-        DatabaseReference usuarioRef = firebaseRef.child("usuarios").child(idUsuario);
+        usuarioRef = firebaseRef.child("usuarios").child(idUsuario);
 
-        usuarioRef.addValueEventListener(new ValueEventListener() {
+        Log.i("Evento", "evento foi adicionado");
+        valueEventListenerUsuario = usuarioRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Usuario usuario = snapshot.getValue(Usuario.class);
@@ -120,7 +128,6 @@ public class PrincipalActivity extends AppCompatActivity {
     }
 
     public void configuraCalendarView(){
-
         //Definir o rótulo dos meses
         CharSequence meses[] = {"Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho",
                 "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"};
@@ -135,7 +142,12 @@ public class PrincipalActivity extends AppCompatActivity {
                 Log.i("data: ", "valor: " + (date.getMonth()+1) + "/" + date.getYear());
             }
         });
-
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i("Evento", "evento foi removido");
+        usuarioRef.removeEventListener(valueEventListenerUsuario);
+    }
 }
